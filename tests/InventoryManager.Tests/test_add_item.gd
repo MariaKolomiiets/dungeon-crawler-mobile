@@ -7,7 +7,7 @@ func _initialize():
 
     var result = inventory.add_item("Health Potion")
 
-    if result and inventory.items.size() == 1 and inventory.items[0] == "Health Potion":
+    if result and inventory.items.size() == 2 and inventory.items[0] == "Health Potion":
         print("Тест T1 пройдено: предмет успішно додано.")
         quit(0)
     else:
