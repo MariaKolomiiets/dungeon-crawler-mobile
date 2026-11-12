@@ -2,34 +2,43 @@ name: Dungeon Crawler CI
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "main", "master" ]
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
-  build-and-validate:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js / Environment check
-        uses: actions/setup-node@v4
+      - name: Set up Godot
+        uses: chickensoft-games/setup-godot@v2
         with:
-          node-version: '24'
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: false
 
-      - name: Validate Project Structure
-        run: |
-          echo "Checking repository structure..."
-          if [ -f "README.md" ]; then
-            echo "Main documentation found. Project structure is valid."
-          else
-            echo "Error: README.md not found!"
-            exit 1
-          fi
+      - name: Check Godot version
+        run: godot --version
 
-      - name: Run Basic Tests Placeholder
+      - name: Validate project
+        run: godot --headless --editor --path . --quit
+
+      - name: Check GDScript syntax
         run: |
-          echo "Running basic tests verification..."
-          echo "GDScript syntax and structure checks completed successfully."
+          godot --headless --path . --check-only --script res://tests/InventoryManager.Tests/InventoryLogic.gd
+          godot --headless --path . --check-only --script res://tests/InventoryManager.Tests/test_add_item.gd
+          godot --headless --path . --check-only --script res://tests/InventoryManager.Tests/test_inventory_limit.gd
+
+      - name: Run T1 - Add item test
+        run: godot --headless --path . --script res://tests/InventoryManager.Tests/test_add_item.gd
+
+      - name: Run T2 - Inventory limit test
+        run: godot --headless --path . --script res://tests/InventoryManager.Tests/test_inventory_limit.gd
