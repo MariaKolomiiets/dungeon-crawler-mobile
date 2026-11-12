@@ -12,6 +12,7 @@ permissions:
 
 jobs:
   build-and-test:
+    name: Build, test and package
     runs-on: ubuntu-latest
 
     steps:
@@ -55,3 +56,34 @@ jobs:
           name: dungeon-crawler-source
           path: dungeon-crawler-source.tar.gz
           retention-days: 14
+
+  lint-and-security:
+    name: Lint and security checks
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install GDScript tools
+        run: pip install gdtoolkit
+
+      - name: Check GDScript style
+        run: gdlint src tests
+
+      - name: Check project configuration
+        run: |
+          if [ -f "project.godot" ]; then
+            echo "Godot project configuration found."
+          else
+            echo "Error: project.godot not found."
+            exit 1
+          fi
